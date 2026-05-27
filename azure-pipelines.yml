@@ -1,0 +1,28 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  resourceGroupName: 'bicep-poc-rg'
+  location: 'Central India'
+
+stages:
+
+- stage: Deploy
+  jobs:
+  - job: DeployResources
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'azure-service-conn'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az group create --name $(resourceGroupName) --location "$(location)"
+
+          az deployment group create \
+            --resource-group $(resourceGroupName) \
+            --template-file main.bicep \
+            --parameters parameters.json
